@@ -43,4 +43,4 @@ def format_array(value: np.array, convert: str = None):
 
 
 def format_table(value, convert):
-    return value.to_string()
+    return value.to_dict()
