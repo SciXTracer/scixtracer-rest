@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+import numpy as np
 import scixtracer as sx
 
 router = APIRouter()
@@ -27,7 +28,18 @@ async def locations(uri: str, annotations: dict[str, str | float | int | bool]):
 async def view_locations(uri: str):
     dataset = sx.get_dataset(sx.uri(uri))
     view = sx.view_locations(dataset)
-    return view.to_dict('records')
+    return view.replace(to_replace=np.nan, value=None).to_dict('records')
+
+
+@router.post("/datasets/{uri}/view_data")
+async def view_data(uri: str, locations_id: list[int]):
+    dataset = sx.get_dataset(sx.uri(uri))
+    _locations = []
+    for _id in locations_id:
+        _locations.append(sx.Location(dataset=dataset, uuid=_id))
+
+    data = sx.view_data(dataset, _locations)
+    return data.replace(to_replace=np.nan, value=None).to_dict('records')
 
 
 @router.post("/datasets/{uri}/query_data")
